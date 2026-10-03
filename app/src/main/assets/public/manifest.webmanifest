@@ -1,0 +1,21 @@
+{
+  "name": "BLOCK DROP",
+  "short_name": "BLOCK DROP",
+  "description": "Pose. Aligne. Détruis. Recommence.",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#061d3a",
+  "theme_color": "#061d3a",
+  "categories": ["games", "puzzle"],
+  "icons": [
+    {
+      "src": "assets/app-icon.png",
+      "sizes": "1254x1254",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

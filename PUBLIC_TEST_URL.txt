@@ -1,0 +1,7 @@
+Version publique :
+https://block-drop-supatrik.adrian-salard.chatgpt.site
+
+Mode de validation accélérée des publicités simulées :
+https://block-drop-supatrik.adrian-salard.chatgpt.site/?ads-demo=1
+
+Dans le mode accéléré, l'interstitielle simulée devient éligible après le premier Game Over et s'affiche uniquement lorsque le joueur touche REJOUER.

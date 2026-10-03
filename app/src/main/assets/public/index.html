@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+  <meta name="theme-color" content="#061d3a">
+  <meta name="description" content="BLOCK DROP — Pose, aligne, détruis, recommence. Un block puzzle marin simple, fluide et addictif.">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>BLOCK DROP</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="assets/app-icon.png">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%23061d3a'/%3E%3Crect x='10' y='10' width='20' height='20' rx='5' fill='%233fd2ff'/%3E%3Crect x='34' y='10' width='20' height='20' rx='5' fill='%23ffc94a'/%3E%3Crect x='10' y='34' width='20' height='20' rx='5' fill='%23ff625d'/%3E%3Cpath d='M34 34h20v20H34z' rx='5' fill='%2374df72'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app" class="app" aria-label="BLOCK DROP">
+    <div class="scene" aria-hidden="true"></div>
+    <div id="countryBackdrop" class="country-backdrop" aria-hidden="true"></div>
+    <div class="scene-tint" aria-hidden="true"></div>
+
+    <section id="homeScreen" class="screen home-screen active" aria-labelledby="gameTitle">
+      <div class="home-actions">
+        <button class="round-button" id="journeyButton" type="button" aria-label="Cartes postales" title="Cartes postales">✈</button>
+        <button class="round-button" id="statsButton" type="button" aria-label="Statistiques" title="Statistiques">▥</button>
+        <button class="round-button" id="homeSettingsButton" type="button" aria-label="Paramètres" title="Paramètres">⚙</button>
+      </div>
+
+      <div class="brand-lockup">
+        <p class="eyebrow">LE PUZZLE QUI SENT LE LARGE</p>
+        <h1 id="gameTitle"><span>BLOCK</span><strong>DROP</strong></h1>
+        <p class="tagline">Pose. Aligne. Détruis. Recommence.</p>
+      </div>
+
+      <img class="home-mascot" src="assets/mascot.webp" width="600" height="900" alt="La mouette BLOCK DROP en pull marin rayé">
+
+      <div class="home-cta">
+        <button id="homeJourney" class="home-journey" type="button" aria-label="Voir le tour du monde et les cartes postales">
+          <span id="homeCountry">🇫🇷 FRANCE</span>
+          <strong>NIVEAU <b id="homeLevel">1</b></strong>
+          <small><b id="homePostcardCount">0</b>/19 cartes</small>
+        </button>
+        <div class="home-buttons-row">
+          <button id="playButton" class="primary-button play-button" type="button">
+            <span id="playButtonLabel">JOUER</span>
+            <small id="playButtonHint">Une partie, sans pression</small>
+          </button>
+          <div class="best-chip" aria-label="Meilleur score">
+            <span>MEILLEUR</span>
+            <strong id="homeBest">0</strong>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="gameScreen" class="screen game-screen" aria-label="Partie de BLOCK DROP">
+      <header class="game-header">
+        <button class="round-button small" id="backButton" type="button" aria-label="Retour à l'accueil">‹</button>
+        <div class="score-card current">
+          <span>SCORE</span>
+          <strong id="scoreValue">0</strong>
+        </div>
+        <div class="score-card">
+          <span>MEILLEUR</span>
+          <strong id="bestValue">0</strong>
+        </div>
+        <button class="round-button small" id="gameSettingsButton" type="button" aria-label="Paramètres">⚙</button>
+      </header>
+
+      <main class="game-main">
+        <div id="comboBanner" class="combo-banner" aria-live="polite"></div>
+        <div id="recordBanner" class="record-banner" aria-live="polite">NOUVEAU RECORD !</div>
+        <div id="levelUpBanner" class="level-up-banner" aria-live="polite">
+          <span>NIVEAU SUIVANT</span>
+          <strong id="levelUpValue">2</strong>
+        </div>
+
+        <div class="journey-status" aria-label="Progression du voyage">
+          <div class="journey-heading">
+            <span id="countryName">🇫🇷 FRANCE</span>
+            <strong>NIVEAU <b id="levelValue">1</b></strong>
+          </div>
+          <div class="level-progress" aria-hidden="true"><i id="levelProgressFill"></i></div>
+          <small id="levelProgressText">0/2 lignes</small>
+        </div>
+
+        <div class="board-wrap">
+          <div id="board" class="board" role="grid" aria-label="Grille de jeu 8 par 8"></div>
+          <div id="erasePanel" class="erase-panel" hidden>
+            <span><strong id="eraseCount">0</strong>/3 blocs</span>
+            <button id="cancelEraseButton" type="button">ANNULER</button>
+            <button id="confirmEraseButton" type="button">EFFACER</button>
+          </div>
+          <div id="mascotReaction" class="mascot-reaction" aria-live="polite">
+            <img src="assets/mascot.webp" alt="" width="600" height="900">
+            <span id="reactionText">Propre.</span>
+          </div>
+        </div>
+
+        <div class="pieces-area" aria-label="Pièces disponibles">
+          <div id="piecesTray" class="pieces-tray"></div>
+        </div>
+
+        <div class="bonus-bar" aria-label="Bonus">
+          <button id="eraserButton" class="bonus-button" type="button">
+            <span class="bonus-icon">⌫</span>
+            <span>GOMME</span>
+            <b id="eraserCount">1</b>
+          </button>
+          <p id="gameHint" class="game-hint">Glisse une pièce sur la grille</p>
+          <button id="redrawButton" class="bonus-button" type="button">
+            <span class="bonus-icon">↻</span>
+            <span>TIRAGE</span>
+            <b id="redrawCount">1</b>
+          </button>
+        </div>
+      </main>
+    </section>
+
+    <div id="tutorialOverlay" class="overlay tutorial-overlay" hidden>
+      <div class="tutorial-card">
+        <div class="tutorial-dots"><i class="active"></i><i></i><i></i></div>
+        <div class="tutorial-demo" aria-hidden="true"><span></span><span></span><span></span></div>
+        <h2 id="tutorialTitle">À toi de jouer</h2>
+        <p id="tutorialText">Glisse une pièce sur la grille.</p>
+        <button id="tutorialNext" class="primary-button compact" type="button">CONTINUER</button>
+      </div>
+    </div>
+
+    <div id="gameOverOverlay" class="overlay" hidden>
+      <div class="modal-card game-over-card">
+        <img class="modal-mascot" src="assets/mascot.webp" alt="La mouette semble légèrement dépitée" width="600" height="900">
+        <p class="eyebrow">OUPS.</p>
+        <h2>TERMINÉ !</h2>
+        <div class="result-grid">
+          <div><span>SCORE</span><strong id="finalScore">0</strong></div>
+          <div><span>MEILLEUR</span><strong id="finalBest">0</strong></div>
+          <div><span>MEILLEUR COMBO</span><strong id="finalCombo">×1</strong></div>
+        </div>
+        <button id="replayButton" class="primary-button" type="button">REJOUER</button>
+        <div id="gameOverJokers" class="game-over-jokers" hidden>
+          <button id="gameOverEraser" type="button">⌫ GOMME <b>×1</b></button>
+          <button id="gameOverRedraw" type="button">↻ TIRAGE <b>×1</b></button>
+        </div>
+        <p class="ad-policy-note">Les pubs plein écran sont espacées et apparaissent uniquement entre certaines parties.</p>
+        <button id="secondChanceButton" class="video-button" type="button">
+          <span>▶</span>
+          <span><strong>LIBÉRER DE L'ESPACE</strong><small>Seconde chance · vidéo récompensée</small></span>
+        </button>
+        <button id="gameOverHomeButton" class="text-button" type="button">ACCUEIL</button>
+      </div>
+    </div>
+
+    <div id="adOverlay" class="overlay ad-overlay" hidden>
+      <div class="ad-card">
+        <div id="adLabel" class="ad-label">PUBLICITÉ SIMULÉE</div>
+        <div class="ad-visual" aria-hidden="true">
+          <span class="ad-block blue"></span><span class="ad-block yellow"></span><span class="ad-block red"></span>
+        </div>
+        <h2>Un peu d'air arrive…</h2>
+        <p id="adMessage">Récompense en préparation</p>
+        <div class="ad-progress"><i id="adProgress"></i></div>
+        <strong id="adCountdown">3</strong>
+      </div>
+    </div>
+
+    <div id="settingsOverlay" class="overlay" hidden>
+      <div class="modal-card settings-card">
+        <button class="modal-close" data-close-overlay="settingsOverlay" type="button" aria-label="Fermer">×</button>
+        <p class="eyebrow">À TA FAÇON</p>
+        <h2>PARAMÈTRES</h2>
+        <label class="setting-row"><span><strong>SONS</strong><small>Placements, lignes et combos</small></span><input id="soundToggle" type="checkbox" checked><i></i></label>
+        <label class="setting-row"><span><strong>VIBRATIONS</strong><small>Retours tactiles légers</small></span><input id="vibrationToggle" type="checkbox" checked><i></i></label>
+        <button id="showTutorialButton" class="secondary-button" type="button">REVOIR LE TUTORIEL</button>
+        <button id="privacyOptionsButton" class="secondary-button" type="button" hidden>GÉRER MES CHOIX PUBLICITAIRES</button>
+        <a class="privacy-link" href="privacy.html">POLITIQUE DE CONFIDENTIALITÉ</a>
+      </div>
+    </div>
+
+    <div id="statsOverlay" class="overlay" hidden>
+      <div class="modal-card stats-card">
+        <button class="modal-close" data-close-overlay="statsOverlay" type="button" aria-label="Fermer">×</button>
+        <p class="eyebrow">CARNET DE BORD</p>
+        <h2>STATISTIQUES</h2>
+        <div class="stats-list">
+          <div><span>Niveau actuel</span><strong id="statsLevel">1</strong></div>
+          <div><span>Cartes postales</span><strong id="statsPostcards">0/19</strong></div>
+          <div><span>Parties jouées</span><strong id="statsGames">0</strong></div>
+          <div><span>Meilleur score</span><strong id="statsBest">0</strong></div>
+          <div><span>Lignes détruites</span><strong id="statsLines">0</strong></div>
+          <div><span>Meilleur combo</span><strong id="statsCombo">×1</strong></div>
+          <div><span>Temps de jeu</span><strong id="statsTime">0 min</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="postcardsOverlay" class="overlay" hidden>
+      <div class="modal-card postcards-card">
+        <button class="modal-close" data-close-overlay="postcardsOverlay" type="button" aria-label="Fermer">×</button>
+        <p class="eyebrow">LE TOUR DU MONDE</p>
+        <h2>CARTES POSTALES</h2>
+        <p class="postcards-intro">Une nouvelle carte avec la mouette tous les 10 niveaux.</p>
+        <div id="postcardGrid" class="postcard-grid" aria-label="Collection de cartes postales"></div>
+      </div>
+    </div>
+
+    <div id="postcardRewardOverlay" class="overlay postcard-reward-overlay" hidden>
+      <div class="postcard-reward-card">
+        <p class="eyebrow">10 NIVEAUX BOUCLÉS</p>
+        <h2>NOUVELLE CARTE !</h2>
+        <div id="rewardPostcard" class="postcard-art reward-postcard" role="img"></div>
+        <strong id="rewardCountry">🇫🇷 France</strong>
+        <p>La mouette ajoute une escale à son carnet de bord.</p>
+        <button id="postcardContinueButton" class="primary-button compact" type="button">CONTINUER LE VOYAGE</button>
+      </div>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <div id="liveRegion" class="sr-only" aria-live="polite"></div>
+  </div>
+
+  <script src="js/engine.js" defer></script>
+  <script src="js/progression.js" defer></script>
+  <script src="js/services.js" defer></script>
+  <script src="js/app.js" defer></script>
+</body>
+</html>
