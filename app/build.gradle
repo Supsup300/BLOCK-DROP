@@ -17,7 +17,7 @@ android {
 
     defaultConfig {
         applicationId "fr.adriansalard.blockdrop"
-        minSdk 23
+        minSdk 24
         targetSdk 36
         versionCode 101
         versionName "2.1.0"
