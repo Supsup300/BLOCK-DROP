@@ -140,22 +140,7 @@ public final class MainActivity extends Activity {
         if (webView != null) webView.onResume();
     }
 
-    @SuppressWarnings("deprecation")
-    @Override
-    public void onBackPressed() {
-        if (webView == null) {
-            super.onBackPressed();
-            return;
-        }
-        webView.evaluateJavascript(
-            "Boolean(window.BLOCK_DROP&&window.BLOCK_DROP.handleAndroidBack());",
-            value -> {
-                if ("true".equals(value)) return;
-                if (webView.canGoBack()) webView.goBack();
-                else MainActivity.super.onBackPressed();
-            }
-        );
-    }
+   
 
     @Override
     protected void onDestroy() {
