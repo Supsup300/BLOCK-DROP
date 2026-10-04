@@ -1,0 +1,44 @@
+name: Create BLOCK DROP signing key
+
+on:
+  workflow_dispatch:
+
+jobs:
+  create-key:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Create BLOCK DROP upload key
+        run: |
+          keytool -genkeypair -v \
+            -keystore blockdrop-upload-key.jks \
+            -alias blockdrop \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+       -storepass "${{ secrets.BLOCKDROP_STORE_PASSWORD }}" \
+       -keypass "${{ secrets.BLOCKDROP_KEY_PASSWORD }}" \
+            -dname "CN=BLOCK DROP, OU=Android, O=SupSup300, L=Paris, C=FR"
+
+      - name: Export certificate
+        run: |
+          keytool -export -rfc \
+            -keystore blockdrop-upload-key.jks \
+            -alias blockdrop \
+            -storepass "${{ secrets.BLOCKDROP_STORE_PASSWORD }}" \
+            -file upload_certificate.pem
+
+      - name: Upload permanent key
+        uses: actions/upload-artifact@v4
+        with:
+          name: BLOCK-DROP-PERMANENT-SIGNING-KEY
+          path: |
+            blockdrop-upload-key.jks
+            upload_certificate.pem
+          retention-days: 90
