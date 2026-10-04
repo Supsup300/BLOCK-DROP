@@ -22,8 +22,8 @@ jobs:
             -keyalg RSA \
             -keysize 2048 \
             -validity 10000 \
-       -storepass "${{ secrets.BLOCKDROP_STORE_PASSWORD }}" \
-       -keypass "${{ secrets.BLOCKDROP_KEY_PASSWORD }}" \
+            -storepass "${{ secrets.BLOCKDROP_STORE_PASSWORD }}" \
+            -keypass "${{ secrets.BLOCKDROP_KEY_PASSWORD }}" \
             -dname "CN=BLOCK DROP, OU=Android, O=SupSup300, L=Paris, C=FR"
 
       - name: Export certificate
