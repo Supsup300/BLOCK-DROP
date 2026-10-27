@@ -1,16 +1,19 @@
-# BLOCK DROP — Android final
+# BLOCK DROP — édition Kartel99Games
+
+Cette édition utilise `com.kartel99games.blockdrop`. Google Play la considère comme une **nouvelle application** : elle ne peut pas remplacer la fiche et les installations de `fr.adriansalard.blockdrop`. Créer une nouvelle fiche dans Play Console pour obtenir une URL avec ce nouvel identifiant. La sauvegarde locale de l'ancienne application ne se transfère pas automatiquement.
 
 Application Android portrait complète de **BLOCK DROP**. Le jeu est embarqué dans l'APK : il démarre sans dépendre du site public et conserve localement la partie, les scores, les niveaux, les cartes postales et les paramètres.
 
 ## Ce qui est intégré
 
 - moteur 8×8, glisser-déposer tactile, combos, bonus, niveaux et 19 pays ;
-- fonds de pays derrière la grille et carte postale tous les 10 niveaux ;
+- fonds de pays derrière la grille et collection de 114 scènes uniques (six lieux et ambiances par pays) ;
+- pièces gagnées par placement, ligne et combo ; achat des jokers Gomme (80) et Tirage (65), y compris au Game Over ;
 - reprise automatique de la partie et bouton Retour Android ;
 - vraie intégration Google Mobile Ads : interstitielle entre certaines parties et vidéo récompensée pour la seconde chance ;
 - consentement Google UMP et gestion ultérieure des choix publicitaires ;
 - orientation portrait, plein écran, icône, splash screen et vibrations ;
-- `versionCode 101`, `versionName 2.1.0` ;
+- `versionCode 201`, `versionName 2.3.0` ;
 - workflow GitHub Actions produisant un APK installable et un AAB Google Play.
 
 ## Obtenir l'APK installable avec GitHub
@@ -21,7 +24,7 @@ Application Android portrait complète de **BLOCK DROP**. Le jeu est embarqué d
 4. À la fin, télécharger l'artefact **block-drop-debug-apk**.
 5. Décompresser l'artefact et installer `app-debug.apk` sur le téléphone Android.
 
-Le débogage Android utilise l'identifiant `fr.adriansalard.blockdrop.debug`, ce qui permet de le tester sans écraser une éventuelle version Play Store.
+Le débogage Android utilise l'identifiant `com.kartel99games.blockdrop.debug`, ce qui permet de le tester sans écraser une éventuelle version Play Store.
 
 ## Produire l'AAB signé pour Google Play
 
@@ -48,14 +51,24 @@ Le projet utilise volontairement les identifiants de test officiels Google : les
 Avant la publication commerciale :
 
 1. remplacer l'App ID dans `app/src/main/res/values/strings.xml` ;
-2. remplacer les deux unités dans `app/src/main/java/fr/adriansalard/blockdrop/ads/AdConfig.java` ;
+2. remplacer les deux unités dans `app/src/main/java/com/kartel99games/blockdrop/ads/AdConfig.java` ;
 3. compléter la fiche AdMob, le consentement et `app-ads.txt` avec le compte éditeur réel ;
 4. indiquer une adresse de contact réelle dans la politique de confidentialité ;
-5. augmenter `versionCode` si une version Play Console numérotée 101 ou plus a déjà été envoyée.
+5. augmenter `versionCode` si une version Play Console numérotée 201 ou plus a déjà été envoyée.
 
 ## Équilibrage 2.1
 
 Les tirages utilisent les espaces disponibles pour éviter les séries sans issue immédiate, tout en conservant du hasard. La partie commence avec **Gomme** et **Tirage** ; chaque joker peut revenir une fois après 15 ou 12 lignes détruites. Les jokers encore disponibles peuvent être utilisés au Game Over pour sauver la partie. Leurs stocks et recharges sont sauvegardés.
+
+## Collection et pièces 2.2
+
+Chaque bloc placé rapporte 2 pièces, chaque ligne détruite 12 pièces et les combos ajoutent un bonus. Le portefeuille est persistant entre les parties. Le comptoir permet d'acheter un joker lorsque son stock est vide (maximum un par type). Au Game Over, une Gomme ou un Tirage peut être acheté et utilisé immédiatement pour reprendre si le plateau le permet. L'achat n'utilise pas d'argent réel.
+
+La collection comporte 114 cartes : 19 pays × 6 éditions visuelles. Les cartes spéciales se débloquent tous les dix niveaux, les autres par paliers de trois lignes détruites. La sauvegarde des 19 cartes de la version précédente est migrée vers les éditions spéciales correspondantes.
+
+## Illustrations 2.3
+
+Chaque pays a désormais sa propre planche de six scènes originales avec la mouette en pull marin. Les 114 images sont réellement différentes, au lieu de réutiliser une même scène recolorée. Les cartes gagnées et la progression sauvegardée conservent les mêmes identifiants et affichent directement les nouvelles illustrations.
 
 ## Compilation locale
 

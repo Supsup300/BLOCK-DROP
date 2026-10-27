@@ -1,4 +1,4 @@
-package fr.adriansalard.blockdrop.consent;
+package com.kartel99games.blockdrop.consent;
 
 import android.app.Activity;
 

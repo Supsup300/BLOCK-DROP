@@ -4,11 +4,13 @@
   const { GameEngine, SIZE } = window.BlockDropEngine;
   const {
     COUNTRIES,
+    CARDS,
     targetForLevel,
     countryIndexForLevel,
     atlasPosition,
     normalizeProgression,
     advanceProgression,
+    advanceCollection,
     levelsUntilPostcard
   } = window.BlockDropProgression;
   const { StorageService, AudioManager, Haptics, SimulatedAdProvider, NativeAdProvider, AdsManager } = window.BlockDropServices;
@@ -17,6 +19,9 @@
   const storage = new StorageService();
   let meta = storage.loadMeta();
   meta = { ...meta, ...normalizeProgression(meta) };
+  meta.wallet = Math.max(0, Math.floor(Number(meta.wallet) || 0));
+  storage.saveMeta(meta);
+  const JOKER_PRICES = { eraser: 80, redraw: 65 };
   let settings = storage.loadSettings();
   const audio = new AudioManager(settings.sound);
   const haptics = new Haptics(settings.vibration);
@@ -142,6 +147,9 @@
       hideOverlay("gameOverOverlay");
       returnHome();
     });
+    $("walletButton").addEventListener("click", openShop);
+    $("buyEraser").addEventListener("click", () => buyJoker("eraser"));
+    $("buyRedraw").addEventListener("click", () => buyJoker("redraw"));
 
     window.addEventListener("pointermove", handlePointerMove, { passive: false });
     window.addEventListener("pointerup", handlePointerUp, { passive: false });
@@ -176,7 +184,7 @@
     renderAll();
     saveGame();
     if (history.state?.blockDrop !== "game") history.pushState({ blockDrop: "game" }, "", location.href);
-    if (!meta.tutorialSeen) window.setTimeout(() => showTutorial(false), 260);
+    if (!meta.tutorialSeen) showTutorial(false);
   }
 
   function returnHome() {
@@ -205,7 +213,7 @@
   }
 
   function closeTransientOverlays() {
-    ["tutorialOverlay", "settingsOverlay", "statsOverlay", "postcardsOverlay", "gameOverOverlay"].forEach(hideOverlay);
+    ["tutorialOverlay", "settingsOverlay", "statsOverlay", "postcardsOverlay", "gameOverOverlay", "shopOverlay"].forEach(hideOverlay);
     completePostcardReward();
   }
 
@@ -277,8 +285,11 @@
     $("homeBest").textContent = formatScore(meta.bestScore);
     $("eraserCount").textContent = engine.bonuses.eraser;
     $("redrawCount").textContent = engine.bonuses.redraw;
-    $("eraserButton").disabled = engine.bonuses.eraser <= 0 || inputLocked;
-    $("redrawButton").disabled = engine.bonuses.redraw <= 0 || inputLocked;
+    $("walletValue").textContent = String(meta.wallet);
+    $("eraserButton").disabled = inputLocked;
+    $("redrawButton").disabled = inputLocked;
+    $("eraserButton").classList.toggle("need-purchase", engine.bonuses.eraser === 0);
+    $("redrawButton").classList.toggle("need-purchase", engine.bonuses.redraw === 0);
   }
 
   function updateHome() {
@@ -287,6 +298,7 @@
     $("playButtonLabel").textContent = resumable ? "REPRENDRE" : "JOUER";
     $("playButtonHint").textContent = resumable ? `Score ${formatScore(engine.score)}` : `${country.flag} Cap sur ${country.name}`;
     $("homeBest").textContent = formatScore(meta.bestScore);
+    $("homeWallet").textContent = String(meta.wallet);
     updateJourneyUi();
   }
 
@@ -450,11 +462,16 @@
   }
 
   function updateProgressFromPlacement(result) {
-    let progression = { state: normalizeProgression(meta), levelUps: [], postcardUnlocks: [] };
+    let progression = { state: normalizeProgression(meta), levelUps: [], postcardUnlocks: [], collectionUnlocks: [] };
+    const earned = result.placedCells.length * 2 + result.lineCount * 12 + Math.max(0, result.combo - 1) * 4;
+    meta.wallet = Math.min(999999, meta.wallet + earned);
     if (result.lineCount > 0) {
       meta.linesCleared += result.lineCount;
       progression = advanceProgression(meta, result.lineCount);
       meta = { ...meta, ...progression.state };
+      const collection = advanceCollection(meta, meta.linesCleared);
+      meta = { ...meta, ...collection.state };
+      progression.collectionUnlocks = collection.unlocks;
     }
     meta.bestCombo = Math.max(meta.bestCombo, result.bestCombo);
     if (engine.score > bestAtSessionStart) recordBrokenThisGame = true;
@@ -482,6 +499,13 @@
       await wait(260);
       await showPostcardReward(postcardIndex);
     }
+    const discoveries = progression.collectionUnlocks || [];
+    if (discoveries.length && !progression.postcardUnlocks.length) {
+      await wait(180);
+      await showPostcardReward(discoveries[0]);
+    }
+    if (discoveries.length && progression.postcardUnlocks.length) showToast("Une autre carte rejoint la collection !");
+    else if (discoveries.length > 1) showToast(`${discoveries.length} nouvelles cartes dans la collection !`);
   }
 
   function showLevelUp(level) {
@@ -548,9 +572,12 @@
     $("finalScore").textContent = formatScore(engine.score);
     $("finalBest").textContent = formatScore(meta.bestScore);
     $("finalCombo").textContent = `×${engine.bestCombo}`;
+    $("gameOverWallet").textContent = String(meta.wallet);
     $("secondChanceButton").disabled = engine.usedSecondChance;
-    const canErase = engine.emergencyEraseCells().length > 0;
-    const canRedraw = engine.bonuses.redraw > 0 && engine.board.some((cell) => !cell);
+    const canErase = engine.emergencyEraseCells(true).length > 0 && (engine.bonuses.eraser > 0 || meta.wallet >= JOKER_PRICES.eraser);
+    const canRedraw = engine.board.some((cell) => !cell) && (engine.bonuses.redraw > 0 || meta.wallet >= JOKER_PRICES.redraw);
+    $("gameOverEraser").innerHTML = engine.bonuses.eraser > 0 ? "⌫ GOMME <b>×1</b>" : `⌫ ACHETER GOMME <b>${JOKER_PRICES.eraser} ◈</b>`;
+    $("gameOverRedraw").innerHTML = engine.bonuses.redraw > 0 ? "↻ TIRAGE <b>×1</b>" : `↻ ACHETER TIRAGE <b>${JOKER_PRICES.redraw} ◈</b>`;
     $("gameOverEraser").hidden = !canErase;
     $("gameOverRedraw").hidden = !canRedraw;
     $("gameOverJokers").hidden = !canErase && !canRedraw;
@@ -598,6 +625,7 @@
   }
 
   function useEmergencyEraser() {
+    if (engine.bonuses.eraser === 0 && !buyJoker("eraser", true)) return;
     const cellsToErase = engine.emergencyEraseCells();
     const result = engine.eraseCells(cellsToErase);
     if (!result.ok) return;
@@ -605,6 +633,7 @@
   }
 
   function useEmergencyRedraw() {
+    if (engine.bonuses.redraw === 0 && !buyJoker("redraw", true)) return;
     const result = engine.redraw();
     if (!result.ok) return;
     resumeWithJoker("Nouveau tirage");
@@ -636,7 +665,8 @@
   }
 
   function beginEraseMode() {
-    if (inputLocked || engine.bonuses.eraser <= 0) return;
+    if (inputLocked) return;
+    if (engine.bonuses.eraser <= 0) return openShop();
     if (!engine.board.some(Boolean)) {
       showToast("Aucun bloc à effacer.");
       return;
@@ -682,7 +712,8 @@
   }
 
   function useRedraw() {
-    if (inputLocked || engine.bonuses.redraw <= 0) return;
+    if (inputLocked) return;
+    if (engine.bonuses.redraw <= 0) return openShop();
     const result = engine.redraw();
     if (!result.ok) return;
     audio.play("joker");
@@ -691,6 +722,47 @@
     updateHud(false);
     showToast("Nouveau tirage");
     saveGame();
+  }
+
+  function openShop() {
+    if (inputLocked) return;
+    renderShop();
+    audio.play("click");
+    showOverlay("shopOverlay");
+  }
+
+  function renderShop() {
+    $("shopWallet").textContent = String(meta.wallet);
+    for (const kind of ["eraser", "redraw"]) {
+      const button = $(kind === "eraser" ? "buyEraser" : "buyRedraw");
+      const stocked = engine.bonuses[kind] > 0;
+      button.disabled = stocked || meta.wallet < JOKER_PRICES[kind];
+      button.setAttribute("aria-label", stocked ? "Joker déjà disponible" : `Acheter pour ${JOKER_PRICES[kind]} pièces`);
+      button.querySelector("b").textContent = stocked ? "EN STOCK" : `${JOKER_PRICES[kind]} ◈`;
+    }
+  }
+
+  function buyJoker(kind, fromGameOver = false) {
+    const price = JOKER_PRICES[kind];
+    if (!price || engine.bonuses[kind] > 0) return false;
+    if (meta.wallet < price) {
+      showToast(`Encore ${price - meta.wallet} pièces pour ce joker`);
+      return false;
+    }
+    if (!engine.addBonus(kind)) return false;
+    meta.wallet -= price;
+    storage.saveMeta(meta);
+    saveGame();
+    audio.play("joker");
+    haptics.pulse("joker");
+    updateHud(false);
+    updateHome();
+    renderShop();
+    if (!fromGameOver) {
+      hideOverlay("shopOverlay");
+      showToast(kind === "eraser" ? "Gomme achetée · touche-la pour l'utiliser" : "Tirage acheté · touche-le pour l'utiliser");
+    }
+    return true;
   }
 
   function selectPieceForTap(piece, slot) {
@@ -735,7 +807,8 @@
 
   function openStats() {
     $("statsLevel").textContent = String(meta.level);
-    $("statsPostcards").textContent = `${meta.unlockedPostcards.length}/${COUNTRIES.length}`;
+    $("statsPostcards").textContent = `${meta.unlockedPostcards.length}/${CARDS.length}`;
+    $("statsCoins").textContent = `${meta.wallet} ◈`;
     $("statsGames").textContent = String(meta.gamesPlayed);
     $("statsBest").textContent = formatScore(meta.bestScore);
     $("statsLines").textContent = String(meta.linesCleared);
@@ -754,16 +827,17 @@
   function renderPostcardCollection() {
     const grid = $("postcardGrid");
     const fragment = document.createDocumentFragment();
-    COUNTRIES.forEach((country, index) => {
+    $("collectionCount").textContent = `${meta.unlockedPostcards.length}/${CARDS.length} cartes`;
+    CARDS.forEach((card, index) => {
       const unlocked = meta.unlockedPostcards.includes(index);
       const item = document.createElement("div");
       item.className = `postcard-item${unlocked ? "" : " locked"}`;
-      item.dataset.level = `NIV. ${(index + 1) * 10}`;
+      item.dataset.level = card.special ? `NIV. ${(card.countryIndex + 1) * 10}` : "3 LIGNES";
       const art = document.createElement("div");
       art.className = "postcard-art";
       setPostcardArt(art, index);
       const label = document.createElement("span");
-      label.textContent = unlocked ? `${country.flag} ${country.name}` : `Escale ${(index + 1) * 10}`;
+      label.textContent = unlocked ? `${card.flag} ${card.title}` : card.special ? `Escale ${(card.countryIndex + 1) * 10}` : "Édition mystère";
       item.append(art, label);
       fragment.appendChild(item);
     });
@@ -771,17 +845,20 @@
   }
 
   function setPostcardArt(element, postcardIndex) {
-    const country = COUNTRIES[postcardIndex];
-    const position = atlasPosition(postcardIndex);
-    element.style.setProperty("--post-x", `${position.x}%`);
-    element.style.setProperty("--post-y", `${position.y}%`);
-    element.setAttribute("aria-label", `Carte postale BLOCK DROP : ${country.name}`);
+    const card = CARDS[postcardIndex];
+    element.className = `postcard-art edition-${card.tint}${element.id === "rewardPostcard" ? " reward-postcard" : ""}`;
+    element.style.backgroundImage = `url("assets/postcards/${COUNTRIES[card.countryIndex].art}.webp")`;
+    element.style.setProperty("--post-x", `${(card.editionIndex % 3) * 50}%`);
+    element.style.setProperty("--post-y", `${Math.floor(card.editionIndex / 3) * 100}%`);
+    element.dataset.edition = card.icon;
+    element.setAttribute("aria-label", `Carte postale BLOCK DROP : ${card.title}`);
   }
 
   function showPostcardReward(postcardIndex) {
-    const country = COUNTRIES[postcardIndex];
+    const card = CARDS[postcardIndex];
     setPostcardArt($("rewardPostcard"), postcardIndex);
-    $("rewardCountry").textContent = `${country.flag} ${country.name}`;
+    $("rewardCountry").textContent = `${card.flag} ${card.title}`;
+    $("rewardEyebrow").textContent = card.special ? "10 NIVEAUX BOUCLÉS" : "3 LIGNES DÉTRUITES";
     $("rewardPostcard").style.animation = "none";
     void $("rewardPostcard").offsetWidth;
     $("rewardPostcard").style.removeProperty("animation");
@@ -884,7 +961,7 @@
       returnHome();
       return true;
     }
-    const transient = ["tutorialOverlay", "settingsOverlay", "statsOverlay", "postcardsOverlay"]
+    const transient = ["tutorialOverlay", "settingsOverlay", "statsOverlay", "postcardsOverlay", "shopOverlay"]
       .find((id) => !$(id).hidden);
     if (transient) {
       hideOverlay(transient);
@@ -982,6 +1059,8 @@
           levelTarget: targetForLevel(meta.level),
           country: country.name,
           postcards: meta.unlockedPostcards.length,
+          totalCards: CARDS.length,
+          wallet: meta.wallet,
           board: engine.board.slice(),
           pieces: engine.pieces.filter((piece) => !piece.used).map((piece, index) => ({ index, shapeId: piece.shapeId, color: piece.color }))
         };

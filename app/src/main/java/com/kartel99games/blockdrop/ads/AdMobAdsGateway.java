@@ -1,4 +1,4 @@
-package fr.adriansalard.blockdrop.ads;
+package com.kartel99games.blockdrop.ads;
 
 import android.app.Activity;
 
