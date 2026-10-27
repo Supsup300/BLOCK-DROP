@@ -319,6 +319,12 @@
       return { ok: true, pieces: this.pieces, gameOver: this.gameOver };
     }
 
+    addBonus(kind) {
+      if (!Object.hasOwn(this.bonuses, kind) || this.bonuses[kind] >= 1) return false;
+      this.bonuses[kind] = 1;
+      return true;
+    }
+
     eraseCells(indices) {
       if (this.bonuses.eraser <= 0 || !Array.isArray(indices)) return { ok: false };
       const unique = Array.from(new Set(indices)).filter((index) => Number.isInteger(index) && index >= 0 && index < SIZE * SIZE && this.board[index]).slice(0, 3);
@@ -335,8 +341,8 @@
       return { ok: true, erasedCells: unique };
     }
 
-    emergencyEraseCells() {
-      if (!this.gameOver || this.bonuses.eraser <= 0) return [];
+    emergencyEraseCells(ignoreStock = false) {
+      if (!this.gameOver || (!ignoreStock && this.bonuses.eraser <= 0)) return [];
       let best = null;
       for (const piece of this.pieces) {
         if (piece.used) continue;

@@ -1,4 +1,4 @@
-package fr.adriansalard.blockdrop.ads;
+package com.kartel99games.blockdrop.ads;
 
 public interface AdsGateway {
     interface ResultCallback {

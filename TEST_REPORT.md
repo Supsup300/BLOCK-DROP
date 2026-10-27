@@ -1,4 +1,13 @@
-# Rapport de validation — 23 septembre 2026
+# Rapport de validation — 8 octobre 2026
+
+## Pièces et collection 2.2
+
+- 114 cartes distinctes dans le catalogue (19 pays × 6 éditions), dont 19 cartes spéciales de niveau ;
+- simulation de 800 lignes : toutes les cartes deviennent déblocables sans doublon ;
+- ancienne sauvegarde de 19 cartes migrée vers les cartes spéciales correspondantes ;
+- parcours réel dans la version publique : pose d'une pièce de 4 blocs → 8 pièces, 3 lignes → carte France Aube ;
+- 122 pièces après plusieurs poses, achat de Tirage à 65 → portefeuille 57 et joker disponible ;
+- rechargement de la page : 57 pièces, carte gagnée, niveau 2 et score 488 toujours sauvegardés.
 
 ## Équilibrage vérifié le 27 septembre 2026
 
@@ -21,7 +30,7 @@
 
 ## Version publique déployée
 
-- déploiement Sites : version 7, statut `succeeded` ;
+- déploiement Sites : version 10, statut `succeeded` ;
 - accueil : la mascotte ne recouvre plus le titre (aire de chevauchement mesurée : 0) ;
 - page : aucun débordement horizontal ou vertical dans le navigateur de validation ;
 - plateau : 477 × 477 px, parfaitement carré ;
@@ -39,4 +48,4 @@
 - workflow GitHub Actions valide pour `lint`, APK debug et AAB release ;
 - aucun secret ni keystore inclus dans l'archive.
 
-La compilation binaire doit être exécutée par le workflow GitHub fourni ou par Android Studio, car l'environnement ayant produit cette archive ne contient pas le SDK Android et ne peut pas télécharger Gradle. Le workflow livré effectue cette compilation sur un runner Android complet.
+La compilation binaire doit être exécutée par le workflow GitHub fourni ou par Android Studio, car cet environnement ne contient pas le SDK Android. Le workflow livré effectue cette compilation sur un runner Android complet. Aucun APK installé sur téléphone n'a été validé dans cet environnement.

@@ -1,6 +1,6 @@
 "use strict";
 
-const CACHE_NAME = "block-drop-v8";
+const CACHE_NAME = "block-drop-v10";
 const CORE = [
   "./",
   "./index.html",

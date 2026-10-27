@@ -3,22 +3,16 @@ name: Build BLOCK DROP Android
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches: [main, kartel99games-v2-3]
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      HAS_RELEASE_SIGNING: ${{ secrets.BLOCKDROP_KEYSTORE_BASE64 != '' }}
     permissions:
       contents: read
 
-    env:
-      KEYSTORE_BASE64: ${{ secrets.BLOCKDROP_KEYSTORE_BASE64 }}
-      STORE_PASSWORD: ${{ secrets.BLOCKDROP_STORE_PASSWORD }}
-      KEY_ALIAS: ${{ secrets.BLOCKDROP_KEY_ALIAS }}
-      KEY_PASSWORD: ${{ secrets.BLOCKDROP_KEY_PASSWORD }}
-
-
-    
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -33,8 +27,13 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Prepare optional Play signing
-        if: ${{ env.KEYSTORE_BASE64 != '' }}
+        if: ${{ env.HAS_RELEASE_SIGNING == 'true' }}
         shell: bash
+        env:
+          KEYSTORE_BASE64: ${{ secrets.BLOCKDROP_KEYSTORE_BASE64 }}
+          STORE_PASSWORD: ${{ secrets.BLOCKDROP_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.BLOCKDROP_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.BLOCKDROP_KEY_PASSWORD }}
         run: |
           printf '%s' "$KEYSTORE_BASE64" | base64 --decode > release.keystore
           printf 'storeFile=release.keystore\nstorePassword=%s\nkeyAlias=%s\nkeyPassword=%s\n' \

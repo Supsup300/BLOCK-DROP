@@ -39,7 +39,7 @@
         <button id="homeJourney" class="home-journey" type="button" aria-label="Voir le tour du monde et les cartes postales">
           <span id="homeCountry">🇫🇷 FRANCE</span>
           <strong>NIVEAU <b id="homeLevel">1</b></strong>
-          <small><b id="homePostcardCount">0</b>/19 cartes</small>
+          <small><b id="homePostcardCount">0</b>/114 cartes · <span id="homeWallet">0</span> ◈</small>
         </button>
         <div class="home-buttons-row">
           <button id="playButton" class="primary-button play-button" type="button">
@@ -108,7 +108,7 @@
             <span>GOMME</span>
             <b id="eraserCount">1</b>
           </button>
-          <p id="gameHint" class="game-hint">Glisse une pièce sur la grille</p>
+          <button id="walletButton" class="wallet-button" type="button" aria-label="Ouvrir les jokers et voir mes pièces"><strong>◈ <span id="walletValue">0</span></strong><small id="gameHint">PIÈCES · JOKERS</small></button>
           <button id="redrawButton" class="bonus-button" type="button">
             <span class="bonus-icon">↻</span>
             <span>TIRAGE</span>
@@ -139,6 +139,7 @@
           <div><span>MEILLEUR COMBO</span><strong id="finalCombo">×1</strong></div>
         </div>
         <button id="replayButton" class="primary-button" type="button">REJOUER</button>
+        <p class="game-over-wallet">◈ <span id="gameOverWallet">0</span> pièces</p>
         <div id="gameOverJokers" class="game-over-jokers" hidden>
           <button id="gameOverEraser" type="button">⌫ GOMME <b>×1</b></button>
           <button id="gameOverRedraw" type="button">↻ TIRAGE <b>×1</b></button>
@@ -149,6 +150,18 @@
           <span><strong>LIBÉRER DE L'ESPACE</strong><small>Seconde chance · vidéo récompensée</small></span>
         </button>
         <button id="gameOverHomeButton" class="text-button" type="button">ACCUEIL</button>
+      </div>
+    </div>
+
+    <div id="shopOverlay" class="overlay" hidden>
+      <div class="modal-card shop-card">
+        <button class="modal-close" data-close-overlay="shopOverlay" type="button" aria-label="Fermer">×</button>
+        <p class="eyebrow">LE COMPTOIR DU PORT</p>
+        <h2>JOKERS</h2>
+        <p class="shop-balance">◈ <strong id="shopWallet">0</strong> pièces</p>
+        <button id="buyEraser" class="shop-item" type="button"><span>⌫ <strong>GOMME</strong><small>Efface jusqu'à 3 blocs</small></span><b>80 ◈</b></button>
+        <button id="buyRedraw" class="shop-item" type="button"><span>↻ <strong>NOUVEAU TIRAGE</strong><small>Remplace les pièces disponibles</small></span><b>65 ◈</b></button>
+        <p>Un joker de chaque type au maximum. Gagne des pièces en plaçant des blocs et en détruisant des lignes.</p>
       </div>
     </div>
 
@@ -185,7 +198,8 @@
         <h2>STATISTIQUES</h2>
         <div class="stats-list">
           <div><span>Niveau actuel</span><strong id="statsLevel">1</strong></div>
-          <div><span>Cartes postales</span><strong id="statsPostcards">0/19</strong></div>
+          <div><span>Cartes postales</span><strong id="statsPostcards">0/114</strong></div>
+          <div><span>Pièces</span><strong id="statsCoins">0 ◈</strong></div>
           <div><span>Parties jouées</span><strong id="statsGames">0</strong></div>
           <div><span>Meilleur score</span><strong id="statsBest">0</strong></div>
           <div><span>Lignes détruites</span><strong id="statsLines">0</strong></div>
@@ -200,14 +214,15 @@
         <button class="modal-close" data-close-overlay="postcardsOverlay" type="button" aria-label="Fermer">×</button>
         <p class="eyebrow">LE TOUR DU MONDE</p>
         <h2>CARTES POSTALES</h2>
-        <p class="postcards-intro">Une nouvelle carte avec la mouette tous les 10 niveaux.</p>
+        <p class="postcards-intro">114 cartes à collectionner : une édition spéciale tous les 10 niveaux et d'autres cartes en détruisant des lignes.</p>
+        <p id="collectionCount" class="collection-count">0/114 cartes</p>
         <div id="postcardGrid" class="postcard-grid" aria-label="Collection de cartes postales"></div>
       </div>
     </div>
 
     <div id="postcardRewardOverlay" class="overlay postcard-reward-overlay" hidden>
       <div class="postcard-reward-card">
-        <p class="eyebrow">10 NIVEAUX BOUCLÉS</p>
+        <p id="rewardEyebrow" class="eyebrow">NOUVELLE ESCALE</p>
         <h2>NOUVELLE CARTE !</h2>
         <div id="rewardPostcard" class="postcard-art reward-postcard" role="img"></div>
         <strong id="rewardCountry">🇫🇷 France</strong>

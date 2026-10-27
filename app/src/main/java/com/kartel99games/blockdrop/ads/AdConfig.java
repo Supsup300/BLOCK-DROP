@@ -1,4 +1,4 @@
-package fr.adriansalard.blockdrop.ads;
+package com.kartel99games.blockdrop.ads;
 
 /**
  * Google-provided test units. Replace both values before publishing a

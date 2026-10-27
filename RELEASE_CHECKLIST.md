@@ -1,7 +1,8 @@
 # Checklist Google Play
 
-- [ ] Confirmer que `fr.adriansalard.blockdrop` est l'identifiant définitif.
-- [ ] Vérifier que `versionCode 101` dépasse toutes les versions déjà envoyées.
+- [ ] Confirmer que `com.kartel99games.blockdrop` est l'identifiant définitif.
+- [ ] Créer une nouvelle fiche Play Console pour `com.kartel99games.blockdrop` ; l'ancienne URL ne peut pas être renommée.
+- [ ] Vérifier que `versionCode 201` dépasse toutes les versions envoyées pour cette nouvelle fiche.
 - [ ] Remplacer les trois identifiants publicitaires de test par ceux du compte AdMob.
 - [ ] Déclarer le site et publier `app-ads.txt` avec l'identifiant éditeur réel.
 - [ ] Ajouter une adresse de contact réelle à la politique de confidentialité.

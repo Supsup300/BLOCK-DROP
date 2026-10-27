@@ -49,6 +49,9 @@
         level: 1,
         levelLines: 0,
         unlockedPostcards: [],
+        wallet: 0,
+        collectionVersion: 0,
+        collectionMilestone: 0,
         ...this.read(META_KEY, {})
       };
     }

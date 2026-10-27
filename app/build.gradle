@@ -12,15 +12,15 @@ if (hasReleaseSigning) {
 }
 
 android {
-    namespace "fr.adriansalard.blockdrop"
+    namespace "com.kartel99games.blockdrop"
     compileSdk 36
 
     defaultConfig {
-        applicationId "fr.adriansalard.blockdrop"
+        applicationId "com.kartel99games.blockdrop"
         minSdk 24
         targetSdk 36
-        versionCode 101
-        versionName "2.1.0"
+        versionCode 201
+        versionName "2.3.0"
     }
 
     signingConfigs {
@@ -61,6 +61,7 @@ android {
 }
 
 dependencies {
+    implementation "androidx.activity:activity:1.10.1"
     implementation "androidx.annotation:annotation:1.9.1"
     implementation "androidx.webkit:webkit:1.17.0"
     implementation "com.google.android.gms:play-services-ads:25.5.0"
