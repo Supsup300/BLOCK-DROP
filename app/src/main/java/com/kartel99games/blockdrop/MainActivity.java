@@ -1,18 +1,14 @@
 package com.kartel99games.blockdrop;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.window.OnBackInvokedDispatcher;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
@@ -21,6 +17,8 @@ import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 
 import androidx.annotation.Nullable;
+import androidx.activity.ComponentActivity;
+import androidx.activity.OnBackPressedCallback;
 import androidx.webkit.WebViewAssetLoader;
 
 import com.kartel99games.blockdrop.ads.AdMobAdsGateway;
@@ -28,7 +26,7 @@ import com.kartel99games.blockdrop.ads.NativeAdsBridge;
 import com.kartel99games.blockdrop.consent.ConsentManager;
 import com.kartel99games.blockdrop.consent.NativeConsentBridge;
 
-public final class MainActivity extends Activity {
+public final class MainActivity extends ComponentActivity {
     private static final String LOCAL_HOST = "appassets.androidplatform.net";
     private static final String START_URL = "https://" + LOCAL_HOST + "/assets/public/index.html";
 
@@ -52,11 +50,12 @@ public final class MainActivity extends Activity {
 
         consentManager.requestConsent(adsGateway::initialize, this::refreshPrivacyControl);
         webView.loadUrl(START_URL);
-        if (Build.VERSION.SDK_INT >= 33) {
-            getOnBackInvokedDispatcher().registerOnBackInvokedCallback(
-                OnBackInvokedDispatcher.PRIORITY_DEFAULT, this::handleBack
-            );
-        }
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                handleBack();
+            }
+        });
     }
 
     private void configureWindow() {
@@ -146,15 +145,6 @@ public final class MainActivity extends Activity {
     protected void onResume() {
         super.onResume();
         if (webView != null) webView.onResume();
-    }
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            handleBack();
-            return true;
-        }
-        return super.onKeyDown(keyCode, event);
     }
 
     private void handleBack() {
