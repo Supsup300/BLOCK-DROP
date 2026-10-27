@@ -3,7 +3,7 @@ name: Build BLOCK DROP Android
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches: [main, kartel99games-v2-3]
 
 jobs:
   build:
